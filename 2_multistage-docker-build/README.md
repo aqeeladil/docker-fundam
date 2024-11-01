@@ -149,8 +149,8 @@ These images are available in Google’s Container Registry and can be pulled di
 ## Dockerfile execution commands
 
 ```html
-git clone https://github.com/aqeeladil/docker-multistage-build.git
-cd docker-multistage-build/
+git clone https://github.com/aqeeladil/docker-fundam.git
+cd docker-fundam/2_multistage-docker-build/
 ls
 
 go run calculator.go

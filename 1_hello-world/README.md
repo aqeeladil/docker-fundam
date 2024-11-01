@@ -90,7 +90,8 @@ This message shows that your installation appears to be working correctly.
 ### Clone this repository
 
 ```
-git clone https://github.com/aqeeladil/docker-hello-world
+git clone https://github.com/aqeeladil/docker-fundam.git
+cd docker-fundam/1_hello-world/
 ```
 
 ### Login to Docker [Create an account with https://hub.docker.com/]
