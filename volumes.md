@@ -23,12 +23,11 @@ Docker volumes are the preferred way to manage persistent data in Docker. They a
 
 Volumes can be created and managed using the docker volume command. You can create a new volume using the following command:
 
-```
+```html
 docker volume create <volume_name>
 ```
 
-```
-
+```html
 # Removing a Volume: 
 docker volume rm my_volume
 
@@ -43,19 +42,19 @@ docker inspect <container_name>
 
 # List running containers
 docker ps
-
 ```
 
 Once a volume is created, you can mount it to a container using the -v or --mount option when running a docker run command. 
 
 For example:
 
-```
+```html
 docker run -it -v <volume_name>:/data <image_name> /bin/bash
-```
+
 OR
-```
+
 docker run -d --mount source=my_volume, target=/my_app my_image:latest
+```
 
 This command will mount the volume <volume_name> to the /data directory in the container. Any data written to the /data directory
 inside the container will be persisted in the volume on the host file system.
@@ -66,7 +65,7 @@ Bind mounts link a specific directory on the host filesystem to a directory in t
 
 For example, 
 
-```
+```html
 docker run -it -v /host/path:/container/path <image_name> /bin/bash
 ```
 
