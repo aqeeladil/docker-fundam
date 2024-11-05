@@ -40,13 +40,21 @@ Containers and virtual machines are both technologies used to isolate applicatio
 
     3. Security: VMs provide a higher level of security as each VM has its own operating system and can be isolated from the host and other VMs. Containers provide less isolation, as they share the host operating system.
 
-   4.  Management: Managing containers is typically easier than managing VMs, as containers are designed to be lightweight and fast-moving.
+    4.  Management: Managing containers is typically easier than managing VMs, as containers are designed to be lightweight and fast-moving.
 
 
 
 ## Why are containers light weight ?
 
 Containers are lightweight because they use a technology called containerization, which allows them to share the host operating system's kernel and libraries, while still providing isolation for the application and its dependencies. This results in a smaller footprint compared to traditional virtual machines, as the containers do not need to include a full operating system. Additionally, Docker containers are designed to be minimal, only including what is necessary for the application to run, further reducing their size.
+
+- Containers do not have a complete OS. They follow the concept of shared libraries. 
+- They have very minimal system dependencies that are required to run your application. 
+- For example, to run a Java application, we need:
+   - the application, 
+   - its run-time dependencies
+   - & some system dependencies that are mandatory to run the application.
+
 
 Let's try to understand this with an example:
 
@@ -105,6 +113,11 @@ I hope it is now very clear why containers are light weight in nature.
 
 
 ## Docker
+
+- Docker is an open-source containerization platform.
+- It is used to manage the lifecycle of a container.
+- It enables developers to package applications into containers.
+- I use docker to build docker images, wtite docker files, run docker containers, push them to registeries, etc.
 - Docker allows you to have an absolutely sealed, air-tight container. And these containers are the absolute heart of docker.
 - These containers wrap up your entire code and these are absolutely portable. This means where ever you put these containers it will work exactly the same as it works on your local machine.
 - Docker also allows you to have social containers. This means you can publish these containers onto a social platform (Docker-Hub).
@@ -135,7 +148,7 @@ We can use the above Image as reference to understand the lifecycle of Docker.
 
 There are three important things,
 
-1. docker build -> builds docker images from Dockerfile
+1. docker build -> builds docker images from Dockerfile (which base image to choose? what dependencies should be installed for the application to run? etc.)
 2. docker run   -> runs container from docker images
 3. docker push  -> push the container image to public/private regestries to share the docker images.
 
@@ -183,4 +196,45 @@ An image is a read-only template with instructions for creating a Docker contain
 You might create your own images or you might only use those created by others and published in a registry. To build your own image, you create a Dockerfile with a simple syntax for defining the steps needed to create the image and run it. Each instruction in a Dockerfile creates a layer in the image. When you change the Dockerfile and rebuild the image, only those layers which have changed are rebuilt. This is part of what makes images so lightweight, small, and fast, when compared to other virtualization technologies.
 
 
+### Docker ADD | vs | Docker COPY
 
+- Docker ADD can copy the files from a URL, while Docker COPY can only copy files from host system into the container.
+
+
+### CMD | vs | Entrypoint
+
+- Entrypoint is more powerfull.
+- CLI arguments using the Docker run command will override the arguments specified using CMD instruction. 
+- Whereas Entrypoint instruction in the shell form will override the additional arguments provided using CLI parameters or even through the CMD command. 
+
+
+### Problem: Real Time Challenges with Docker
+
+- Docker is a single daemon process. Which can cause a single point of failure. If the docker daemon goes down for some reason all the applications are down.
+- Docker Daemon runs as a root user. Which is a security threat. Any process running as a root can have adverse effects. When it is compromised for security reasons, it can impact other applications or containers on the host.
+- Solution: This problem is solved by Podman
+
+- If you are running too many containers on a single host, you may face issues with resource constraints. This can result in slow performance or crashes.
+
+
+### Steps to secure a container
+
+1. Use distroless images with not too many packages as your final image in multi-stage-build, so that there is less chance of CVE or security issues.
+2. Ensure that the networking is configured properly. If required, configure custom bridge networks and assign them to isolate the containers.
+3. Use utilities like Sync to scan your container images.
+
+
+### Most Useful Docker Command
+### Stop Writing Dockerfiles - Use Docker Init
+
+Initialize a project with the files necessary to run the project in a container.
+Docker Desktop provides the docker init CLI command. Run docker init in your project directory to be walked through the creation of the following files with sensible defaults for your project:
+
+```html
+.dockerignore
+Dockerfile
+compose.yaml
+README.Docker.md
+```
+
+If any of the files already exist, a prompt appears and provides a warning as well as giving you the option to overwrite all the files. If docker-compose.yaml already exists instead of compose.yaml, docker init can overwrite it, using docker-compose.yaml as the name for the Compose file.
