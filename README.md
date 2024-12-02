@@ -1,10 +1,8 @@
 # Containers
 
-
 ## Problem Statement :
 - Developer: It works on my machine.
 - Production Team: It is not working properly in the production environment.
-
 
 ### Intro to Containers
 - Containers are an advancement to virtual machines.
