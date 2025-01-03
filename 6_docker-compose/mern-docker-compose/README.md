@@ -1,5 +1,4 @@
 # Dockerizing the MERN Stack  Application: A Comprehensive Guide with Docker Compose
-<br>
 
 ## To run it locally (without docker)
 
