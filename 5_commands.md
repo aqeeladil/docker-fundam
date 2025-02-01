@@ -2,57 +2,41 @@
 
 Some of the most commonly used docker commands are 
 
-### docker images
+```bash
+# Lists docker images on the host machine.
+docker images
 
-Lists docker images on the host machine.
+# Builds image from Dockerfile.
+docker build
 
-### docker build
+# Runs a Docker container. 
+docker run
 
-Builds image from Dockerfile.
+# Lists running containers on the host machine.
+docker ps
 
-### docker run
+# Stops running container.
+docker stop
 
-Runs a Docker container. 
+# Starts a stopped container.
+docker start
 
-There are many arguments which you can pass to this command for example,
+# Removes a stopped container.
+docker rm
 
-`docker run -d` -> Run container in background and print container ID
-`docker run -p` -> Port mapping
+# Removes an image from the host machine.
+docker rmi
 
-use `docker run --help` to look into more arguments.
+# Downloads an image from the configured registry.
+docker pull
 
-### docker ps
+# Uploads an image to the configured registry.
+docker push
 
-Lists running containers on the host machine.
+# Run a command in a running container.
+docker exec
 
-### docker stop
+# Manage Docker networks such as creating and removing networks, and connecting containers to networks.
+docker network
+```
 
-Stops running container.
-
-### docker start
-
-Starts a stopped container.
-
-### docker rm
-
-Removes a stopped container.
-
-### docker rmi
-
-Removes an image from the host machine.
-
-### docker pull
-
-Downloads an image from the configured registry.
-
-### docker push
-
-Uploads an image to the configured registry.
-
-### docker exec
-
-Run a command in a running container.
-
-### docker network
-
-Manage Docker networks such as creating and removing networks, and connecting containers to networks.

@@ -1,12 +1,16 @@
 # Docker Networking
 
-Networking allows containers to communicate with each other and with the host system. Containers run isolated from the host system and need a way to communicate with each other and with the host system.
+Docker networking allows containers to communicate with each other and with the host system. Containers run in an isolated environment and require networking to enable communication between them.
 
-By default, Docker provides two network drivers for you, the bridge and the overlay drivers. 
+By default, Docker provides multiple network drivers, including the **bridge**, **host**, **overlay**, and **macvlan** drivers.
 
-```
+You can list available networks using:
+
+```sh
 docker network ls
 ```
+
+Example output:
 
 ```
 NETWORK ID          NAME                DRIVER
@@ -15,156 +19,140 @@ xxxxxxxxxxxx        host                host
 xxxxxxxxxxxx        bridge              bridge
 ```
 
+---
+## Bridge Networking
 
-### Bridge Networking
+Bridge networking is the **default network mode** in Docker. It creates an isolated, private network for containers on a single host, allowing communication between them. Containers within the same bridge network can communicate using container names or IP addresses.
 
-The default network mode in Docker. It creates a private/isolated network between the host and containers, allowing containers to communicate with each other and with the host system.
+### Key Features:
+- Isolates containers from the host network.
+- Allows communication between containers via IP or container names.
+- **Limited to a single host** (does not support multi-host communication without additional setup).
 
-Containers in the bridge network can access each other using container names or IP addresses.
+![Bridge Network](https://user-images.githubusercontent.com/43399466/217745543-f40e5614-ac34-4b78-85a9-91b24512388d.png)
 
-Bridge Network is limited to a single host, and doesn’t support multi-host communication without additional configurations.
+### Creating a Custom Bridge Network
 
-![image](https://user-images.githubusercontent.com/43399466/217745543-f40e5614-ac34-4b78-85a9-91b24512388d.png)
+To isolate containers from the default bridge network, you can create your own bridge network:
 
-If you want to secure your containers and isolate them from the default bridge network you can also create your own bridge network.
-
-```
+```sh
 docker network create -d bridge my_bridge
 ```
 
-Another Example:
+Another example with a specific subnet:
 
-```
+```sh
 docker network create --driver bridge --subnet 192.168.1.0/24 secure_bridge
 ```
 
-Now, if you list the docker networks, you will see a new network.
+### Attaching Containers to a Bridge Network
 
-```
-docker network ls
-
-NETWORK ID          NAME                DRIVER
-xxxxxxxxxxxx        bridge              bridge
-xxxxxxxxxxxx        my_bridge           bridge
-xxxxxxxxxxxx        none                null
-xxxxxxxxxxxx        host                host
-```
-
-This new network can be attached to the containers, when you run these containers.
-
-```
+```sh
 docker run -d --net=my_bridge --name db training/postgres
 ```
 
-This way, you can run multiple containers on a single host platform where one container is attached to the default network and the other is attached to the my_bridge network.
+If two containers are attached to different bridge networks, they are **completely isolated** and cannot communicate. However, you can connect them later:
 
-These containers are completely isolated with their private networks and cannot talk to each other.
+!{Isolated Connection](https://user-images.githubusercontent.com/43399466/217748680-8beefd0a-8181-4752-a098-a905ebed5d2a.png)
 
-![image](https://user-images.githubusercontent.com/43399466/217748680-8beefd0a-8181-4752-a098-a905ebed5d2a.png)
-
-
-However, you can at any point of time, attach the first container to my_bridge network and enable communication
-
-```
+```sh
 docker network connect my_bridge web
 ```
 
-![image](https://user-images.githubusercontent.com/43399466/217748726-7bb347d0-3736-4f89-bdff-31d240b15150.png)
+![Bridge Connection](https://user-images.githubusercontent.com/43399466/217748726-7bb347d0-3736-4f89-bdff-31d240b15150.png)
 
+### Example Commands:
 
-### Commands
-
-1st- Container
-
-```
+#### 1st Container (Login)
+```sh
 docker run -d --name login-container nginx:latest
 docker exec -it login-container /bin/bash
 apt update
 apt-get install iputils-ping -y
-<ip-address-of-logout-container>
-ping <ip-address-of-finance-container>     #can't access it
-
+ping <ip-address-of-logout-container>   # Should work
+ping <ip-address-of-finance-container>  # Can't access it
 ```
 
-2nd- Container
-
-```
+#### 2nd Container (Logout)
+```sh
 docker run -d --name logout-container nginx:latest
 docker exec -it logout-container /bin/bash
 apt update
 apt-get install iputils-ping -y
-ping -V
-ping <ip-address-of-login-container>
-ping <ip-address-of-finance-container>     #can't access it
-
+ping <ip-address-of-login-container>   # Should work
+ping <ip-address-of-finance-container> # Can't access it
 ```
 
-3rd- Container
-
-```
+#### 3rd Container (Finance - Using a Secure Network)
+```sh
 docker network create secure-network
 docker network ls
 docker run -d --name finance-container --network=secure-network nginx:latest
-
 ```
 
-Working mechanism multiple containers
-
-```
+To inspect container networks:
+```sh
 docker ps
 docker inspect login-container
 docker inspect logout-container
 docker inspect finance-container
-
 ```
 
+---
+## Host Networking
 
-####################################################################
+The **host network** allows containers to use the host system's network stack **directly**, instead of creating a separate namespace.
 
-### Host Networking
+### Key Features:
+- Containers share the **same network namespace** as the host.
+- The container **does not get its own IP**; it uses the host's IP.
+- **Faster networking performance**, but **less isolation**.
+- Used for performance-sensitive applications requiring high network performance.
 
-The host network allows containers to share the host system's network stack Instead of creating a new network namespace for the container, the container uses the host’s network stack.
+### Running a Container with Host Networking
 
-This mode allows containers to share the host system's network stack, providing direct access to the host system's network.
-
-To attach a host network to a Docker container, you can use the --network="host" option when running a docker run command. When you use this option, the container has access to the host's network stack, and shares the host's network namespace. This means that the container will use the same IP address and network configuration as the host.
-
-Here's an example of how to run a Docker container with the host network:
-
-```
+```sh
 docker run --network="host" <image_name>:latest
 ```
 
-OR 
-
-```
+Example:
+```sh
 docker run --name host-demo --network="host" nginx:latest
 docker ps
 docker inspect host-demo
 ```
 
-Keep in mind that when you use the host network, the container is less isolated from the host system, and has access to all of the host's network resources. This can be a security risk, so use the host network with caution.
+**⚠️ Security Consideration:**
+Using host networking reduces container isolation, so use it with caution.
 
-It is used for performance-sensitive applications requiring high network performance.
+---
+## Overlay Networking
 
-Additionally, not all Docker image and command combinations are compatible with the host network, so it's important to check the image documentation or run the image with the --network="bridge" option (the default network mode) first to see if there are any compatibility issues.
+Overlay networks enable **multi-host** communication by allowing containers on different hosts to communicate securely.
+
+### Key Features:
+- Used in **Docker Swarm** for cross-host communication.
+- Containers can communicate **securely** using an encrypted tunnel.
+- Ideal for **distributed applications** running on multiple hosts.
+
+---
+## Macvlan Networking
+
+Macvlan allows containers to appear as **physical devices** on the network rather than virtualized Docker containers.
+
+### Key Features:
+- Assigns a **unique MAC address** to each container.
+- The container appears as a **separate physical machine**.
+- Ideal for applications that require direct network access (e.g., legacy systems that need a dedicated IP).
+
+---
+## Conclusion
+
+Docker provides several networking modes, each suited for different use cases:
+- **Bridge Network:** Default, isolated, and limited to a single host.
+- **Host Network:** Directly uses the host's network stack.
+- **Overlay Network:** Enables communication across multiple hosts.
+- **Macvlan Network:** Assigns a unique MAC address, making the container appear as a physical device.
 
 
 
-############################################################################
-
-### Overlay Networking
-
-This mode enables communication between containers across multiple Docker host machines, allowing containers to be connected to a single network even when they are running on different hosts. (i.e within a Docker Swarm cluster or with other Docker hosts.)
-
-Containers on the overlay network can reach each other across different Docker hosts by using an encrypted tunnel.
-
-Overlay networks are ideal for distributed applications where containers need to communicate across hosts in a secure and isolated manner.
-
-
-
-#################################################################################
-
-### Macvlan Networking
-
-This mode allows a container to appear on the network as a physical host rather than as a container.
